@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Brt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class BrtManagementTest extends TestCase
@@ -101,15 +102,18 @@ class BrtManagementTest extends TestCase
     /** @test */
     public function a_user_can_delete_a_brt()
     {
+        $this->actingAs($this->user); // Make sure the test is using the correct user
+
         $brt = Brt::factory()->create(['user_id' => $this->user->id]);
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->deleteJson("/api/brts/{$brt->id}"); // Use ID not brt_code
+        ])->deleteJson("/api/brts/{$brt->id}");
 
         $response->assertStatus(200)
                 ->assertJson(['message' => 'BRT deleted']);
-        
+
         $this->assertDatabaseMissing('brts', ['id' => $brt->id]);
     }
+
 }

@@ -81,21 +81,18 @@ class BrtController extends Controller
         return response()->json($brt, 200);
     }
 
-    // Delete a specific BRT by ID
     public function destroy($id)
     {
-        $brt = Brt::where('id', $id)->where('user_id', Auth::id())->first();
-        if (!$brt) {
-            return response()->json(['success' => false, 'message' => 'BRT not found'], 404);
+        $brt = Brt::where('user_id', Auth::id())->find($id);
+        if(!$brt){
+            return response()->json(['message' => 'BRT not found'], 404);
         }
-
-        $item = $brt;
-        
         $brt->delete();
 
         // Dispatch a real-time notification event
-        event(new BrtDeleted($item));
+        event(new BrtDeleted($brt));
 
         return response()->json(['success' => true, 'message' => 'BRT deleted'], 200);
     }
+
 }
