@@ -6,11 +6,14 @@ use App\Models\Brt;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class BrtCreated implements ShouldBroadcast
+class BrtCreated implements ShouldBroadcastNow
 {
-    use InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets, SerializesModels, Dispatchable;
 
     public $brt;
 

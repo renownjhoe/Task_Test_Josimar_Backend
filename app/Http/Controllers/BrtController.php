@@ -17,7 +17,7 @@ class BrtController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $brts = Brt::where('user_id', $user->id)->get();
+        $brts = Brt::orderBy('id', 'desc')->get();//where('user_id', $user->id)->get();
         return response()->json($brts, 200);
     }
 
@@ -88,11 +88,13 @@ class BrtController extends Controller
         if (!$brt) {
             return response()->json(['success' => false, 'message' => 'BRT not found'], 404);
         }
+
+        $item = $brt;
         
         $brt->delete();
 
         // Dispatch a real-time notification event
-        event(new BrtDeleted($brt));
+        event(new BrtDeleted($item));
 
         return response()->json(['success' => true, 'message' => 'BRT deleted'], 200);
     }

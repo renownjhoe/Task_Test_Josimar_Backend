@@ -2,21 +2,16 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
+use App\Models\Brt;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Card;
 
-class TotalReservedAmountWidget extends ChartWidget
+class TotalReservedAmountWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Chart';
-
-    protected function getData(): array
+    protected function getCards(): array
     {
         return [
-            //
+            Card::make('Total Reserved Amount', number_format(Brt::sum('reserved_amount'), 2)),
         ];
-    }
-
-    protected function getType(): string
-    {
-        return 'bar';
     }
 }
