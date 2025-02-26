@@ -46,7 +46,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-
+ 
     // Login and return JWT
     public function login(Request $request)
     {
