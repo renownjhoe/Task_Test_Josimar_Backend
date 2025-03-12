@@ -21,7 +21,7 @@ jobs:
                 cd /home/ec2-user/app
                 git config --global --add safe.directory /home/ec2-user/app
                 git pull origin main
-                sudo chown -R ec2-user:ec2-user /home/ec2-user/app
+                sudo chown -R ubuntu:ubuntu /home/ec2-user/app
                 docker-compose -f docker-compose.yml down
                 docker-compose -f docker-compose.yml up -d --build
                 docker-compose -f docker-compose.yml exec app php artisan migrate --force
