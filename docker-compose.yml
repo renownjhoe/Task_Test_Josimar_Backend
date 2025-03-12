@@ -9,14 +9,14 @@ services:
       - ./:/home/ubuntu/app
     environment:
       - DB_CONNECTION=sqlite
-      - DB_DATABASE=/vhome/ubuntu/app/database/database.sqlite
+      - DB_DATABASE=/home/ubuntu/app/database/database.sqlite
 
   nginx:
     image: nginx:alpine
     ports:
       - "80:80"
     volumes:
-      - ./:/home/ubuntu/app
-      - ./docker/nginx/brume.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/home/ubuntu/app/public
+      - ./docker/nginx/brume.conf:/etc/nginx/conf.d/brume.conf
     depends_on:
       - app

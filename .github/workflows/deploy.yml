@@ -1,4 +1,4 @@
-name: Deploy Laravel to EC2 (SQLite)
+name: Deploy Laravel application to EC2 (using SQLite as database)
 
 on:
   push:
