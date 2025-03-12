@@ -14,13 +14,15 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ec2-user/app
-            git pull origin main
-            docker-compose down
-            docker-compose up -d --build
-            docker-compose exec app php artisan migrate --force
-            docker-compose exec app php artisan optimize:clear
+            host: ${{ secrets.EC2_HOST }}
+            username: ${{ secrets.EC2_USERNAME }}
+            key: ${{ secrets.EC2_SSH_KEY }}
+            script: |
+                cd /home/ec2-user/app
+                git config --global --add safe.directory /home/ec2-user/app
+                git pull origin main
+                sudo chown -R ec2-user:ec2-user /home/ec2-user/app
+                docker-compose -f docker-compose.yml down
+                docker-compose -f docker-compose.yml up -d --build
+                docker-compose -f docker-compose.yml exec app php artisan migrate --force
+                docker-compose -f docker-compose.yml exec app php artisan optimize:clear
