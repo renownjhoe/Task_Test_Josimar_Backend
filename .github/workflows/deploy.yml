@@ -50,4 +50,4 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
           docker stop brumebackend || true
           docker rm brumebackend || true
-          docker run -d -p 80:80 --name brumebackend ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
+          docker run -d -p 8080:80 --name brumebackend ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
