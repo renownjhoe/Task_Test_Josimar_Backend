@@ -5,18 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./:/home/ubuntu/app
     environment:
       - DB_CONNECTION=sqlite
-      - DB_DATABASE=/home/ubuntu/app/database/database.sqlite
+      - DB_DATABASE=/app/database/database.sqlite #Corrected database path.
 
   nginx:
     image: nginx:alpine
     ports:
       - "80:80"
-    volumes:
-      - ./public:/home/ubuntu/app/public
-      - ./docker/nginx/brume.conf:/etc/nginx/conf.d/brume.conf
     depends_on:
       - app

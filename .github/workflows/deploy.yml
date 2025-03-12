@@ -41,7 +41,10 @@ jobs:
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest
             sudo docker-compose down #remove old containers.
             sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest app:latest #tag the image so docker compose can find it.
-            sudo mv /home/ubuntu/app/docker-compose.yml /home/ubuntu/app/docker-compose.yml #copy docker compose file
+            #copy docker compose and nginx config files.
+            mkdir -p /home/ubuntu/app/docker/nginx/
+            cp docker-compose.yml /home/ubuntu/app/docker-compose.yml
+            cp docker/nginx/brume.conf /home/ubuntu/app/docker/nginx/brume.conf
             sudo docker-compose up -d #run docker compose.
             sudo mkdir -p /etc/nginx/conf.d
             sudo mv /home/ubuntu/app/docker/nginx/brume.conf /etc/nginx/conf.d/brume.conf
