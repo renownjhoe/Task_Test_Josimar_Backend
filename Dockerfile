@@ -1,69 +1,38 @@
-# Stage 1: Install dependencies
-FROM php:8.2-fpm AS dependencies
+# Use the official PHP-FPM image as the base image
+FROM php:8.2-fpm
 
-# Install system dependencies for intl, zip, and other required extensions
+# Install any needed packages specified in composer.json
 RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libicu-dev \
     libzip-dev \
     unzip \
-    git \
-    curl \
-    && docker-php-ext-install intl zip
+    nginx \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install intl \
+    && docker-php-ext-install zip
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+# Copy the current directory contents into the container at /var/www/html
+COPY . /var/www/html
 
-# Copy only necessary files for composer install
-COPY composer.json composer.lock artisan ./
-COPY app/ app/
-COPY config/ config/
-COPY database/ database/
-COPY public/ public/
-COPY resources/ resources/
-COPY routes/ routes/
-COPY storage/ storage/
-COPY .env.docker .env
-COPY bootstrap/ bootstrap/
+# Set the correct permissions for the web directory
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-# Set cache directory
-ENV COMPOSE_CACHE_DIR=/app/bootstrap/cache
+# Install application dependencies
+RUN composer install
 
-# Run Composer install
-RUN composer install --optimize-autoloader --no-dev --prefer-dist
+# Copy Nginx configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Stage 2: Build application
-FROM php:8.2-fpm
-
-WORKDIR /app
-
-# Copy vendor folder from dependencies stage
-COPY --from=dependencies /app/vendor ./vendor
-
-# Copy the rest of your application files
-COPY . .
-COPY database/ database/
-COPY public/ public/
-COPY resources/ resources/
-COPY routes/ routes/
-COPY storage/ storage/
-COPY app/ app/
-COPY config/ config/
-COPY .env.docker .env
-
-# Ensure proper permissions
-RUN apt-get update && apt-get install -y git && git config --global --add safe.directory /app && \
-    chown -R www-data:www-data /app/storage && \
-    chmod -R 775 /app/storage && \
-    touch database/database.sqlite && \
-    chmod 755 database/database.sqlite
-
-# Run Laravel setup commands
-RUN php artisan key:generate
-RUN php artisan migrate
-RUN php artisan optimize:clear
-
+# Expose port 80 to the outside world
 EXPOSE 80
 
-CMD ["php-fpm", "-F"]
+# Start Nginx and PHP-FPM
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]

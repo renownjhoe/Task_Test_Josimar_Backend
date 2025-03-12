@@ -1,0 +1,61 @@
+name: Deploy Laravel application to EC2 (using SQLite as database)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: |
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and tag Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest . #assuming brume is the repo name
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY_PAIR_PEM }}
+          script: |
+            sudo apt-get update
+            sudo apt-get install -y docker.io docker-compose nginx git
+            sudo systemctl start docker
+            sudo usermod -aG docker ubuntu
+            newgrp docker
+            sudo systemctl restart nginx
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest
+            sudo docker-compose down #remove old containers.
+            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/brume:latest app:latest #tag the image so docker compose can find it.
+            #copy docker compose and nginx config files.
+            mkdir -p /home/ubuntu/app/docker/nginx/
+            sudo cp docker-compose.yml /home/ubuntu/app/docker-compose.yml
+            sudo cp docker/nginx/brume.conf /home/ubuntu/app/docker/nginx/brume.conf
+            sudo docker-compose up -d #run docker compose.
+            sudo mkdir -p /etc/nginx/conf.d
+            sudo mv /home/ubuntu/app/docker/nginx/brume.conf /etc/nginx/conf.d/brume.conf
+            sudo sed -i "s/your_domain_or_public_ip/${{ secrets.EC2_PUBLIC_IP }}/g" /etc/nginx/conf.d/brume.conf
+            sudo systemctl restart nginx
+
+      - name: Test application
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY_PAIR_PEM }}
+          script: |
+            curl http://${{ secrets.EC2_PUBLIC_IP }}/ #replace with a test endpoint.

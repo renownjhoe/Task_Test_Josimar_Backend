@@ -1,9 +1,0 @@
-.git
-node_modules
-vendor
-*.log
-.env
-.env.example
-credentials
-docker-compose.yml
-docker/nginx/*.conf
