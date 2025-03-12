@@ -21,15 +21,15 @@ RUN docker-php-ext-install intl pdo_sqlite pdo_mysql mbstring exif pcntl bcmath 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /home/ec2-user/app
 
 # Copy existing application directory contents
 COPY . .
 
 #Install application dependencies and # Fix permissions and Git safe directory first
-RUN git config --global --add safe.directory /var/www/html && \
-    chown -R www-data:www-data /var/www/html/storage && \
-    chmod -R 775 /var/www/html/storage && \
+RUN git config --global --add safe.directory /home/ec2-user/app && \
+    chown -R www-data:www-data /home/ec2-user/app/storage && \
+    chmod -R 775 /home/ec2-user/app/storage && \
     touch database/database.sqlite && \
     chmod 755 database/database.sqlite
 
