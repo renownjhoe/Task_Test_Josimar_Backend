@@ -19,21 +19,21 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push Docker image
       run: |
         docker build -t brumebackend .
-        docker tag brumebackend:latest ${{ secrets.DOCKER_USERNAME }}/brumebackend:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/brumebackend:latest
+        docker tag brumebackend:latest ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
 
     - name: SSH to EC2 and install Docker
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ secrets.EC2_HOST }}
+        host: ${{ secrets.EC2_PUBLIC_IP }}
         username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
+        key: ${{ secrets.EC2_KEY_PAIR_PEM }}
         script: |
           sudo apt-get update
           sudo apt-get install -y docker.io
@@ -43,11 +43,11 @@ jobs:
     - name: SSH to EC2 and deploy
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ secrets.EC2_HOST }}
+        host: ${{ secrets.EC2_PUBLIC_IP }}
         username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
+        key: ${{ secrets.EC2_KEY_PAIR_PEM }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/brumebackend:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
           docker stop brumebackend || true
           docker rm brumebackend || true
-          docker run -d -p 80:80 --name brumebackend ${{ secrets.DOCKER_USERNAME }}/brumebackend:latest
+          docker run -d -p 80:80 --name brumebackend ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
