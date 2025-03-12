@@ -18,11 +18,13 @@ jobs:
             username: ${{ secrets.EC2_USERNAME }}
             key: ${{ secrets.EC2_SSH_KEY }}
             script: |
-                cd /home/ec2-user/app
-                git config --global --add safe.directory /home/ec2-user/app
-                git pull origin main
                 sudo chown -R ubuntu:ubuntu /home/ec2-user/app
-                docker-compose -f docker-compose.yml down
-                docker-compose -f docker-compose.yml up -d --build
-                docker-compose -f docker-compose.yml exec app php artisan migrate --force
-                docker-compose -f docker-compose.yml exec app php artisan optimize:clear
+                cd /home/ec2-user/app
+                git config --global --add safe.directory .
+                git reset --hard HEAD
+                git clean -fd
+                git pull origin main
+                docker-compose down
+                docker-compose up -d --build
+                docker-compose exec app php artisan migrate --force
+                docker-compose exec app php artisan optimize:clear
