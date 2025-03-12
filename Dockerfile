@@ -59,8 +59,6 @@ RUN apt-get update && apt-get install -y git && git config --global --add safe.d
     touch database/database.sqlite && \
     chmod 755 database/database.sqlite
 
-RUN composer install
-RUN composer dump-autoload
 # Run Laravel setup commands
 RUN php artisan key:generate
 RUN php artisan migrate
