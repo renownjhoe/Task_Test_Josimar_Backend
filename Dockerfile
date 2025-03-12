@@ -15,7 +15,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
+COPY composer.json composer.lock artisan ./ #added artisan to this line.
 
 RUN composer install --optimize-autoloader --no-dev --prefer-dist
 
