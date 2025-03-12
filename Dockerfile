@@ -16,9 +16,19 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 WORKDIR /app
 
 # Copy only necessary files for composer install
-COPY composer.json composer.lock ./
-COPY artisan artisan
+COPY composer.json composer.lock artisan ./
+COPY app/ app/
+COPY config/ config/
+COPY database/ database/
+COPY public/ public/
+COPY resources/ resources/
+COPY routes/ routes/
+COPY storage/ storage/
+COPY .env.example .env
 COPY bootstrap/ bootstrap/
+
+# Set cache directory
+ENV COMPOSE_CACHE_DIR=/app/bootstrap/cache
 
 # Run Composer install
 RUN composer install --optimize-autoloader --no-dev --prefer-dist
@@ -33,6 +43,14 @@ COPY --from=dependencies /app/vendor ./vendor
 
 # Copy the rest of your application files
 COPY . .
+COPY database/ database/
+COPY public/ public/
+COPY resources/ resources/
+COPY routes/ routes/
+COPY storage/ storage/
+COPY app/ app/
+COPY config/ config/
+COPY .env.docker .env
 
 # Ensure proper permissions
 RUN git config --global --add safe.directory /app && \
