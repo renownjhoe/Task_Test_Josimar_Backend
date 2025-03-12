@@ -1,9 +1,9 @@
-.git
-node_modules
-vendor
-*.log
-.env
-.env.docker
-credentials
-docker-compose.yml
-docker/nginx/*.conf
+# .git
+# node_modules
+# vendor
+# *.log
+# .env
+# .env.docker
+# credentials
+# docker-compose.yml
+# docker/nginx/*.conf
