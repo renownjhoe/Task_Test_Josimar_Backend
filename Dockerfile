@@ -15,14 +15,20 @@ WORKDIR /app
 COPY --from=dependencies /app/vendor ./vendor
 
 COPY . .
+COPY database/ database/
+COPY public/ public/
+COPY resources/ resources/
+COPY routes/ routes/
+COPY storage/ storage/
+COPY app/ app/
+COPY config/ config/
+COPY .env.docker .env
 
 RUN git config --global --add safe.directory /app && \
     chown -R www-data:www-data /app/storage && \
     chmod -R 775 /app/storage && \
     touch database/database.sqlite && \
     chmod 755 database/database.sqlite
-
-COPY credentials .env
 
 RUN php artisan key:generate
 RUN php artisan migrate
