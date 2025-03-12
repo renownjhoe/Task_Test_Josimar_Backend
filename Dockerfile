@@ -64,6 +64,6 @@ RUN php artisan key:generate
 RUN php artisan migrate
 RUN php artisan optimize:clear
 
-EXPOSE 9000
+EXPOSE 80
 
 CMD ["php-fpm", "-F"]
