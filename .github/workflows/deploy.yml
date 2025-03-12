@@ -1,30 +1,52 @@
-name: Deploy to EC2
+name: Deploy Laravel to EC2 (SQLite)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_USERNAME }}
-            key: ${{ secrets.EC2_SSH_KEY }}
-            script: |
-                sudo chown -R ubuntu:ubuntu /home/ec2-user/app
-                cd /home/ec2-user/app
-                git config --global --add safe.directory .
-                git reset --hard HEAD
-                git clean -fd
-                git pull origin main
-                docker-compose down
-                docker-compose up -d --build
-                docker-compose exec app php artisan migrate --force
-                docker-compose exec app php artisan optimize:clear
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set EC2_PUBLIC_IP
+        run: |
+          echo "EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
+
+      - name: Install SSH key
+        run: |
+          echo "${{ secrets.EC2_KEY_PAIR_PEM }}" > ec2_key.pem
+          chmod 400 ec2_key.pem
+
+      - name: Install Docker and Docker Compose
+        run: |
+          ssh -i ec2_key.pem ec2-user@${{ env.EC2_PUBLIC_IP }} 'sudo amazon-linux-extras install docker && sudo service docker start && sudo usermod -a -G docker ec2-user && newgrp docker && sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose && sudo yum install nginx -y'
+
+      - name: Copy application files
+        run: |
+          scp -r -i ec2_key.pem . ec2-user@${{ env.EC2_PUBLIC_IP }}:/home/ec2-user/app
+          ssh -i ec2_key.pem ec2-user@${{ env.EC2_PUBLIC_IP }} 'sudo mv /home/ec2-user/app/.env.docker /home/ec2-user/app/.env'
+          ssh -i ec2_key.pem ec2-user@${{ env.EC2_PUBLIC_IP }} 'sudo mkdir -p /etc/nginx/conf.d'
+
+      - name: Configure Nginx
+        run: |
+          ssh -i ec2_key.pem ec2-user@${{ env.EC2_PUBLIC_IP }} 'sudo mv /home/ec2-user/app/docker/nginx/brume.conf /etc/nginx/conf.d/brume.conf && sudo sed -i "s/your_domain_or_public_ip/${{ env.EC2_PUBLIC_IP }}/g" /etc/nginx/conf.d/brume.conf && sudo systemctl restart nginx'
+
+      - name: Deploy application
+        run: |
+          ssh -i ec2_key.pem ec2-user@${{ env.EC2_PUBLIC_IP }} 'cd /home/ec2-user/app && docker-compose up -d --build'
+
+      - name: Test application
+        run: |
+          curl http://${{ env.EC2_PUBLIC_IP }}/ #replace with a test endpoint.
