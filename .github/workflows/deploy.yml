@@ -24,11 +24,11 @@ jobs:
             sudo apt-get install -y docker.io docker-compose nginx git
             sudo systemctl start docker
             sudo usermod -aG docker ubuntu
-            sudo newgrp docker
-            sudo mkdir -p /home/ubuntu/app
-            sudo cd /home/ubuntu/app
-            sudo rm -rf *
-            sudo git clone --depth 1 https://github.com/renownjhoe/Task_Test_Josimar_Backend.git .
+            newgrp docker
+            mkdir -p /home/ubuntu/app
+            cd /home/ubuntu/app
+            rm -rf *
+            git clone --depth 1 https://github.com/renownjhoe/Task_Test_Josimar_Backend.git .
             sudo chown -R ubuntu:ubuntu /home/ubuntu/app
             sudo mv .env.docker .env
             sudo mkdir -p /etc/nginx/conf.d
