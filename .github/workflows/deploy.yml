@@ -30,7 +30,7 @@ jobs:
             rm -rf *
             git clone --depth 1 https://github.com/renownjhoe/Task_Test_Josimar_Backend.git .
             sudo chown -R ubuntu:ubuntu /home/ubuntu/app
-            sudo cp .env.docker .env
+            sudo cp credentials .env
             sudo mkdir -p /etc/nginx/conf.d
             sudo mv docker/nginx/brume.conf /etc/nginx/conf.d/brume.conf
             sudo sed -i "s/your_domain_or_public_ip/${{ secrets.EC2_PUBLIC_IP }}/g" /etc/nginx/conf.d/brume.conf

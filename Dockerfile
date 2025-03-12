@@ -38,7 +38,7 @@ RUN composer install --optimize-autoloader --no-dev --ignore-platform-reqs
 
 
 #Some artisan commands
-COPY .env.docker .env
+COPY credentials .env
 
 RUN php artisan key:generate
 RUN php artisan migrate
