@@ -24,7 +24,7 @@ COPY public/ public/
 COPY resources/ resources/
 COPY routes/ routes/
 COPY storage/ storage/
-COPY .env.docker .env
+COPY .env.example .env
 COPY bootstrap/ bootstrap/
 
 # Set cache directory
@@ -53,7 +53,7 @@ COPY config/ config/
 COPY .env.docker .env
 
 # Ensure proper permissions
-RUN git config --global --add safe.directory /app && \
+RUN apt-get update && apt-get install -y git && git config --global --add safe.directory /app && \
     chown -R www-data:www-data /app/storage && \
     chmod -R 775 /app/storage && \
     touch database/database.sqlite && \
