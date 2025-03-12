@@ -1,6 +1,12 @@
 # Stage 1: Install dependencies
 FROM php:8.2-fpm AS dependencies
 
+# Install system dependencies required for composer and unzip for composer packages
+RUN apt-get update && apt-get install -y curl unzip git
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 WORKDIR /app
 
 COPY composer.json composer.lock ./
@@ -14,6 +20,7 @@ WORKDIR /app
 
 COPY --from=dependencies /app/vendor ./vendor
 
+# Copy the rest of your application files
 COPY . .
 COPY database/ database/
 COPY public/ public/
