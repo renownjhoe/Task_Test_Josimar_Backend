@@ -24,7 +24,7 @@ COPY public/ public/
 COPY resources/ resources/
 COPY routes/ routes/
 COPY storage/ storage/
-COPY .env.example .env
+COPY .env.docker .env
 COPY bootstrap/ bootstrap/
 
 # Set cache directory
