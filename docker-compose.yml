@@ -4,8 +4,8 @@ services:
   php-app:
     image: ${IMAGE_NAME}
     container_name: php-app
-    # ports:
-    #   - "9000:9000"
+    ports:
+      - "9000:9000"
     volumes:
       - /home/ubuntu/Task_Test_Josimar_Backend:/app
 
