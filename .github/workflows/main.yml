@@ -66,9 +66,9 @@ jobs:
     # Step 7: Build and Push New Docker Image
     - name: Build and Push New Docker Image
       run: |
-        docker build -t ${{ secrets.EC2_USERNAME }}/php-app:${{ env.COMMIT_ID }} -t ${{ secrets.EC2_USERNAME }}/php-app:latest .
-        docker push ${{ secrets.EC2_USERNAME }}/php-app:${{ env.COMMIT_ID }}
-        docker push ${{ secrets.EC2_USERNAME }}/php-app:latest
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }} -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest
 
     # Step 8: SSH into server and deploy new containers
     - name: Deploy New Containers
