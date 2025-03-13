@@ -24,108 +24,41 @@ jobs:
         run: |
           scp -r . ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
 
-          - name: SSH to EC2 and deploy
-          run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-              # Update and install necessary packages
-              sudo apt update && sudo apt install -y docker.io nginx
-  
-              # Enable and start Docker & Nginx
-              sudo systemctl enable docker nginx
-              sudo systemctl start docker nginx
-  
-              # Configure Nginx
-              sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOT'
-                server {
-                  listen 80;
-                  server_name ${{ secrets.EC2_PUBLIC_IP_OR_DOMAIN }};
-  
-                  location / {
-                    proxy_pass http://localhost:3000;
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  }
-                }
-              EOT
-  
-              # Link the site and restart Nginx
-              sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-              sudo systemctl restart nginx
-  
-              # Deploy Docker container
-              mkdir -p /home/ubuntu/app
-              cd /home/ubuntu/app
-              git clone --depth 1 <your-repo-clone-url> . # Replace with your repo URL
-              docker build -t my-app .
-              docker stop my-app-container || true
-              docker rm my-app-container || true
-              docker run -d --name my-app-container -p 3000:3000 my-app
-            EOF
+      - name: SSH to EC2 and deploy
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Update and install necessary packages
+          sudo apt update && sudo apt install -y docker.io nginx
 
+          # Enable and start Docker & Nginx
+          sudo systemctl enable docker nginx
+          sudo systemctl start docker nginx
 
+          # Configure Nginx
+          sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOT'
+            server {
+              listen 80;
+              server_name ${{ secrets.EC2_PUBLIC_IP_OR_DOMAIN }};
 
+              location / {
+                proxy_pass http://localhost:3000;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              }
+            }
+          EOT
 
+          # Link the site and restart Nginx
+          sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+          sudo systemctl restart nginx
 
-
-
-
-
-
-
-
-
-
-# name: Deploy to AWS EC2
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v1
-
-#     - name: Login to Docker Hub
-#       uses: docker/login-action@v1
-#       with:
-#         username: ${{ secrets.DOCKERHUB_USERNAME }}
-#         password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-#     - name: Build and push Docker image
-#       run: |
-#         docker build -t brumebackend .
-#         docker tag brumebackend:latest ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
-#         docker push ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
-
-#     - name: SSH to EC2 and install Docker
-#       uses: appleboy/ssh-action@v0.1.10
-#       with:
-#         host: ${{ secrets.EC2_PUBLIC_IP }}
-#         username: ubuntu
-#         key: ${{ secrets.EC2_KEY_PAIR_PEM }}
-#         script: |
-#           sudo apt-get update
-#           sudo apt-get install -y docker.io
-#           sudo systemctl start docker 
-#           sudo systemctl enable docker
-
-#     - name: SSH to EC2 and deploy
-#       uses: appleboy/ssh-action@v0.1.10
-#       with:
-#         host: ${{ secrets.EC2_PUBLIC_IP }}
-#         username: ubuntu
-#         key: ${{ secrets.EC2_KEY_PAIR_PEM }}
-#         script: |
-#           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
-#           docker stop brumebackend || true
-#           docker rm brumebackend || true
-#           docker run -d -p 8080:80 --name brumebackend ${{ secrets.DOCKERHUB_USERNAME }}/brumebackend:latest
+          # Deploy Docker container
+          # mkdir -p /home/ubuntu/app
+          cd /home/ubuntu/app
+          # git clone --depth 1 <your-repo-clone-url> . # Replace with your repo URL
+          docker build -t brume .
+          docker stop brume-container || true
+          docker rm brume-container || true
+          docker run -d --name brume-container -p 3000:3000 brume
+        EOF
