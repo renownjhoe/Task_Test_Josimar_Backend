@@ -22,7 +22,7 @@ jobs:
 
       - name: Copy project to EC2
         run: |
-          scp -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app
+          sudo scp -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app
 
       - name: SSH to EC2 and deploy
         run: |
