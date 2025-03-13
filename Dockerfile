@@ -70,4 +70,10 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 
 # Expose port and set CMD
 EXPOSE 9000
-CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
+
+# Add this line before your CMD
+COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+
+# Update your CMD line
+CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && chmod -R 775 /app/storage /app/bootstrap/cache && chown -R www-data:www-data /app/storage /app/bootstrap/cache && php-fpm"]
+# CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
