@@ -3,7 +3,7 @@ name: Deploy New Docker Container
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   SERVER_HOST: ${{ secrets.EC2_PUBLIC_IP }}
