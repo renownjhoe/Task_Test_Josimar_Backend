@@ -9,6 +9,7 @@ RUN apk add --no-cache --virtual .build-deps \
     libzip-dev \
     libpng-dev \
     libpq-dev \
+    icu-dev \
     build-base \
     nodejs \
     npm && \
@@ -41,6 +42,7 @@ RUN apk add --no-cache \
     libpq \
     libpng \
     libzip \
+    icu \
     nodejs \
     npm
 
@@ -65,7 +67,6 @@ RUN mkdir -p /app/storage /app/bootstrap/cache
 RUN echo "changing mode and owner"
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
-
 
 RUN echo "starting application"
 # Expose port and set CMD
