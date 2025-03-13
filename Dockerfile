@@ -60,8 +60,13 @@ COPY --from=build /app /app
 RUN mkdir -p /app/storage /app/bootstrap/cache
 
 # Set appropriate permissions for Laravel folders
+
+RUN echo "changing mode and owner"
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
+
+RUN echo "starting application"
 # Expose port and set CMD
+RUN composer install
 CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]

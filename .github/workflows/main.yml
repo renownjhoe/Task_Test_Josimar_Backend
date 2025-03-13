@@ -70,23 +70,23 @@ jobs:
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest
 
-    # Step 8: SSH into server and deploy new containers
-    - name: Deploy New Containers
-      run: |
-        ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          cd /home/ubuntu/Task_Test_Josimar_Backend
-          echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}" >> .env
-          docker compose up -d
-        EOF
+    # # Step 8: SSH into server and deploy new containers
+    # - name: Deploy New Containers
+    #   run: |
+    #     ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+    #       cd /home/ubuntu/Task_Test_Josimar_Backend
+    #       echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}" >> .env
+    #       docker compose up -d
+    #     EOF
 
-    # Step 9: Clean up SSH private key
-    - name: Clean up SSH private key
-      run: |
-        rm -f private_key.pem
-      if: always()
+    # # Step 9: Clean up SSH private key
+    # - name: Clean up SSH private key
+    #   run: |
+    #     rm -f private_key.pem
+    #   if: always()
 
-    # Step 10: Clean up known_hosts file
-    - name: Clean up known_hosts file
-      run: |
-        rm -f ~/.ssh/known_hosts
-      if: always()
+    # # Step 10: Clean up known_hosts file
+    # - name: Clean up known_hosts file
+    #   run: |
+    #     rm -f ~/.ssh/known_hosts
+    #   if: always()
