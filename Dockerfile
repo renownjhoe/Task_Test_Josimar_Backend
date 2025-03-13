@@ -9,10 +9,7 @@ RUN apk add --no-cache --virtual .build-deps \
     libzip-dev \
     libpng-dev \
     libpq-dev \
-<<<<<<< HEAD
     icu-dev \
-=======
->>>>>>> ad710a6 (File finals)
     build-base \
     nodejs \
     npm && \
@@ -20,12 +17,8 @@ RUN apk add --no-cache --virtual .build-deps \
         pdo_mysql \
         pdo_pgsql \
         zip \
-<<<<<<< HEAD
         gd \
         intl
-=======
-        gd
->>>>>>> ad710a6 (File finals)
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -33,11 +26,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Set working directory for the build
 WORKDIR /app
 
-<<<<<<< HEAD
 COPY . /app
 
-=======
->>>>>>> ad710a6 (File finals)
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
@@ -52,10 +42,7 @@ RUN apk add --no-cache \
     libpq \
     libpng \
     libzip \
-<<<<<<< HEAD
     icu \
-=======
->>>>>>> ad710a6 (File finals)
     nodejs \
     npm
 
@@ -73,7 +60,6 @@ COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 COPY --from=build /app /app
 
 # Ensure the directories exist before setting permissions
-<<<<<<< HEAD
 RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
@@ -85,13 +71,3 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 # Expose port and set CMD
 EXPOSE 9000
 CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
-=======
-RUN mkdir -p /app/storage /app/bootstrap/cache
-
-# Set appropriate permissions for Laravel folders
-RUN chmod -R 775 /app/storage /app/bootstrap/cache
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
-
-# Expose port and set CMD
-CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
->>>>>>> ad710a6 (File finals)
