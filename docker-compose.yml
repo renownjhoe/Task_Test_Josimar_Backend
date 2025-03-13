@@ -18,4 +18,4 @@ services:
       - /home/ubuntu/Task_Test_Josimar_Backend:/app
       - /home/ubuntu/Task_Test_Josimar_Backend/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - php-app
+      - php-app  
