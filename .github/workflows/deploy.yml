@@ -25,40 +25,38 @@ jobs:
           scp -r . ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
 
       - name: SSH to EC2 and deploy
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          # Update and install necessary packages
-          sudo apt update && sudo apt install -y docker.io nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Update and install necessary packages
+            sudo apt update && sudo apt install -y docker.io nginx
 
-          # Enable and start Docker & Nginx
-          sudo systemctl enable docker nginx
-          sudo systemctl start docker nginx
+            # Enable and start Docker & Nginx
+            sudo systemctl enable docker nginx
+            sudo systemctl start docker nginx
 
-          # Configure Nginx
-          sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOT'
-            server {
-              listen 80;
-              server_name ${{ secrets.EC2_PUBLIC_IP_OR_DOMAIN }};
+            # Configure Nginx to proxy traffic to Docker container (update port accordingly)
+            sudo tee /etc/nginx/sites-available/default > /dev/null << 'EOT'
+              server {
+                listen 80;
+                server_name ${{ secrets.EC2_PUBLIC_IP_OR_DOMAIN }};  # Update with your EC2 IP or Domain
 
-              location / {
-                proxy_pass http://localhost:3000;
-                proxy_set_header Host \$host;
-                proxy_set_header X-Real-IP \$remote_addr;
-                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                location / {
+                  proxy_pass http://localhost:8080;  # Make sure to match your Docker container port
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                }
               }
-            }
-          EOT
+            EOT
 
-          # Link the site and restart Nginx
-          sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-          sudo systemctl restart nginx
+            # Link the site configuration and restart Nginx
+            sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+            sudo systemctl restart nginx
 
-          # Deploy Docker container
-          # mkdir -p /home/ubuntu/app
-          cd /home/ubuntu/app
-          # git clone --depth 1 <your-repo-clone-url> . # Replace with your repo URL
-          docker build -t brume .
-          docker stop brume-container || true
-          docker rm brume-container || true
-          docker run -d --name brume-container -p 3000:3000 brume
-        EOF
+            # Deploy Docker container
+            cd /home/ubuntu/app
+            docker build -t brume .  # Build your Docker image
+            docker stop brume-container || true  # Stop existing container if it exists
+            docker rm brume-container || true  # Remove old container
+            docker run -d --name brume-container -p 8080:8080 brume  # Ensure you expose the correct port
+          EOF
