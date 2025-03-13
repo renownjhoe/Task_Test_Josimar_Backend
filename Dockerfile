@@ -36,7 +36,7 @@ WORKDIR /app
 COPY . /app
 
 # Install Node.js dependencies and build assets
-RUN npm install && npm run dev
+RUN npm install && npm run build
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
