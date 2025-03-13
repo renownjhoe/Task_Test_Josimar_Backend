@@ -65,8 +65,8 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # Increase the number of file watchers
-RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
-    sysctl -p
+# RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
+#     sysctl -p
 
 # Expose port and set CMD
 EXPOSE 9000
