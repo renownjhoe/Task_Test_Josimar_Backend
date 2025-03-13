@@ -16,7 +16,8 @@ RUN apk add --no-cache --virtual .build-deps \
         pdo_mysql \
         pdo_pgsql \
         zip \
-        gd
+        gd \
+        intl \
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -68,5 +69,5 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 RUN echo "starting application"
 # Expose port and set CMD
-RUN composer install
-CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
+RUN composer install --ignore-platform-req=ext-intl
+CMD ["sh", "-c", "composer install --ignore-platform-req=ext-intl && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
