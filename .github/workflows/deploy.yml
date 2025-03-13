@@ -50,12 +50,18 @@ jobs:
                   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 }
               }
-            EOT
+            # EOT
           EOF
 
       - name: Deploy Docker
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+
+            # Link the site configuration and restart Nginx
+            sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+            sudo systemctl restart nginx
+            sudo nginx -t  # Test Nginx configuration
+
             # Deploy Docker container
             echo "Building and deploying Docker container..."
             cd /home/ubuntu/app
