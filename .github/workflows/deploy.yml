@@ -51,16 +51,11 @@ jobs:
                 }
               }
             EOT
+          EOF
 
-            # Check if Nginx configuration is valid
-            echo "Testing Nginx configuration..."
-            sudo nginx -t
-
-            # Link the site configuration and restart Nginx
-            echo "Linking Nginx site configuration and restarting Nginx..."
-            sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-            sudo systemctl restart nginx
-
+      - name: Deploy Docker
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # Deploy Docker container
             echo "Building and deploying Docker container..."
             cd /home/ubuntu/app
@@ -69,3 +64,7 @@ jobs:
             docker rm brume-container || true  # Remove old container
             docker run -d --name brume-container -p 8080:8080 brume  # Ensure you expose the correct port
           EOF
+
+      - name: Remove SSH key
+        run: |
+          rm -f ~/.ssh/id_rsa
