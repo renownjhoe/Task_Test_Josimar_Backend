@@ -59,8 +59,7 @@ jobs:
           cd /home/ubuntu/Task_Test_Josimar_Backend
           sudo chown -R $USER:$USER .
           git stash
-          git pull --rebase origin main  # Pull latest code changes with rebase
-          git stash pop
+          git pull origin main
         EOF
 
     # Step 7: Build and Push New Docker Image
