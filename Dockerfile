@@ -1,7 +1,7 @@
 # Stage 1: Build stage for PHP dependencies and Node.js assets
 FROM php:8.2-fpm-alpine AS build
 
-# Install build dependencies for PHP extensions and Node.js
+# Install build dependencies
 RUN apk add --no-cache --virtual .build-deps \
     git \
     unzip \
@@ -23,21 +23,18 @@ RUN apk add --no-cache --virtual .build-deps \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory for the build
+# Set working directory
 WORKDIR /app
 
 COPY . /app
 
-# Install Node.js globally in the build stage (optional)
-RUN npm install -g npm
-
-# Clean up build dependencies to reduce image size
+# Clean up build dependencies
 RUN apk del .build-deps
 
 # Stage 2: Runtime stage
 FROM php:8.2-fpm-alpine
 
-# Install only runtime dependencies
+# Install runtime dependencies
 RUN apk add --no-cache \
     libpq \
     libpng \
@@ -52,28 +49,41 @@ COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy PHP runtime extensions and configuration from the build stage
+# Copy PHP runtime extensions and configuration
 COPY --from=build /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 
-# Copy application files from the build stage
+# Copy application files
 COPY --from=build /app /app
 
-# Ensure the directories exist before setting permissions
+# Create a custom PHP-FPM configuration
+RUN echo "\
+[global]\n\
+error_log = /proc/self/fd/2\n\
+\n\
+[www]\n\
+listen = 0.0.0.0:9000\n\
+listen.allowed_clients = any\n\
+user = www-data\n\
+group = www-data\n\
+pm = dynamic\n\
+pm.max_children = 5\n\
+pm.start_servers = 2\n\
+pm.min_spare_servers = 1\n\
+pm.max_spare_servers = 3\n\
+catch_workers_output = yes\n\
+" > /usr/local/etc/php-fpm.d/zz-docker.conf
+
+# Ensure directories exist with proper permissions
 RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Increase the number of file watchers
-# RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
-#     sysctl -p
-
-# Expose port and set CMD
+# Expose port
 EXPOSE 9000
 
-# Add this line before your CMD
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+# Separate the application setup from PHP-FPM startup
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Update your CMD line
-CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && chmod -R 775 /app/storage /app/bootstrap/cache && chown -R www-data:www-data /app/storage /app/bootstrap/cache && php-fpm"]
-# CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
+ENTRYPOINT ["/entrypoint.sh"]
