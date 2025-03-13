@@ -63,10 +63,13 @@ COPY --from=build /app /app
 RUN mkdir -p /app/storage /app/bootstrap/cache
 
 # Set appropriate permissions for Laravel folders
-
 RUN echo "changing mode and owner"
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+# Increase the number of file watchers
+RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
+    sysctl -p
 
 RUN echo "starting application"
 # Expose port and set CMD
