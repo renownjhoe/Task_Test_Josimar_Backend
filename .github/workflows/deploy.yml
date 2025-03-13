@@ -42,7 +42,7 @@ jobs:
               server {
                 listen 80;
                 server_name ${{ secrets.EC2_PUBLIC_IP }};  # Update with your EC2 IP or Domain
-                root /var/www/public;
+                root /home/ubuntu/app;
 
                 location / {
                   proxy_pass http://localhost:9000;  # Make sure to match your Docker container port
