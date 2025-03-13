@@ -28,13 +28,16 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # Update and install necessary packages
+            echo "Updating system and installing Docker & Nginx..."
             sudo apt update && sudo apt install -y docker.io nginx
 
             # Enable and start Docker & Nginx
+            echo "Enabling and starting Docker & Nginx..."
             sudo systemctl enable docker nginx
             sudo systemctl start docker nginx
 
             # Configure Nginx to proxy traffic to Docker container (update port accordingly)
+            echo "Configuring Nginx..."
             sudo tee /etc/nginx/sites-available/default > /dev/null << 'EOT'
               server {
                 listen 80;
@@ -49,11 +52,17 @@ jobs:
               }
             EOT
 
+            # Check if Nginx configuration is valid
+            echo "Testing Nginx configuration..."
+            sudo nginx -t
+
             # Link the site configuration and restart Nginx
+            echo "Linking Nginx site configuration and restarting Nginx..."
             sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
             sudo systemctl restart nginx
 
             # Deploy Docker container
+            echo "Building and deploying Docker container..."
             cd /home/ubuntu/app
             docker build -t brume .  # Build your Docker image
             docker stop brume-container || true  # Stop existing container if it exists
