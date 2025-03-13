@@ -51,7 +51,7 @@ jobs:
           docker compose down
           docker system prune -af
         EOF
-
+        
     # Step 7: Ensure the server code is up to date with GitHub
     - name: Pull latest code from GitHub on the server
       run: |
