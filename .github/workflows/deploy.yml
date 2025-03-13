@@ -24,44 +24,44 @@ jobs:
         run: |
           scp -r . ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app
 
-      - name: Deploy and Configure Nginx on EC2
-        run: |
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            # Install necessary packages
-            sudo apt update
-            sudo apt install -y docker.io nginx
-            
-            # Enable and start Docker & Nginx
-            sudo systemctl enable docker nginx
-            sudo systemctl start docker nginx
-
-            # Configure Nginx
-            sudo tee /etc/nginx/sites-available/default > /dev/null <<EOT
-            server {
-                listen 80;
-                server_name http://54.163.73.52;
-
-                location / {
+          - name: SSH to EC2 and deploy
+          run: |
+            ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+              # Update and install necessary packages
+              sudo apt update && sudo apt install -y docker.io nginx
+  
+              # Enable and start Docker & Nginx
+              sudo systemctl enable docker nginx
+              sudo systemctl start docker nginx
+  
+              # Configure Nginx
+              sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOT'
+                server {
+                  listen 80;
+                  server_name ${{ secrets.EC2_PUBLIC_IP_OR_DOMAIN }};
+  
+                  location / {
                     proxy_pass http://localhost:3000;
                     proxy_set_header Host \$host;
                     proxy_set_header X-Real-IP \$remote_addr;
                     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  }
                 }
-            }
-            EOT
-
-            # Restart Nginx
-            sudo systemctl restart nginx
-
-            # Deploy Docker container
-            cd /home/ubuntu/app
-            docker build -t brume .
-            docker stop brume-container || true
-            docker rm brume-container || true
-            docker run -d --name brume-container -p 3000:3000 brume
-          EOF
-
-
+              EOT
+  
+              # Link the site and restart Nginx
+              sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+              sudo systemctl restart nginx
+  
+              # Deploy Docker container
+              mkdir -p /home/ubuntu/app
+              cd /home/ubuntu/app
+              git clone --depth 1 <your-repo-clone-url> . # Replace with your repo URL
+              docker build -t my-app .
+              docker stop my-app-container || true
+              docker rm my-app-container || true
+              docker run -d --name my-app-container -p 3000:3000 my-app
+            EOF
 
 
 
