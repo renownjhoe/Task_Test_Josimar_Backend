@@ -51,7 +51,6 @@ jobs:
                   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 }
               }
-            # EOT
           EOF
 
       - name: Deploy Docker
@@ -69,7 +68,7 @@ jobs:
             docker build -t brume .  # Build your Docker image
             docker stop brume-container || true  # Stop existing container if it exists
             docker rm brume-container || true  # Remove old container
-            docker run -d --name brume-container -p 8080:8080 brume  # Ensure you expose the correct port
+            docker run -d --name brume-container -p 80:9000 brume  # Ensure you expose the correct port
           EOF
 
       - name: Remove SSH key
