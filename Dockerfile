@@ -92,5 +92,8 @@ RUN mkdir -p /app/storage /app/bootstrap/cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
+# Expose PHP-FPM port
+EXPOSE 9000
+
 # Start the application
 CMD ["sh", "-c", "php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm"]
