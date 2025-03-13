@@ -24,6 +24,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Set working directory for the build
 WORKDIR /app
 
+COPY . /app
+
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
