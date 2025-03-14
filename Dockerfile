@@ -28,6 +28,9 @@ WORKDIR /app
 
 COPY . /app
 
+# Copy the .env.example to .env
+COPY .env.example .env
+
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
