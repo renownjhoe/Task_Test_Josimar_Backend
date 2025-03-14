@@ -65,10 +65,9 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # Create the database file
-RUN touch /app/database/database.sqlite
-
-# Change ownership of the database.sqlite file
-RUN chown www-data:www-data /app/database/database.sqlite
+RUN touch /app/database/database.sqlite && \
+    chmod 775 /app/database/database.sqlite && \
+    chown www-data:www-data /app/database/database.sqlite
 
 # Increase the number of file watchers
 # RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
@@ -80,4 +79,4 @@ EXPOSE 9000
 
 RUN echo "Run command"
 
-CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
+CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && chown www-data:www-data /app/database/database.sqlite && php artisan db:seed && php-fpm -F"]
