@@ -89,9 +89,9 @@ jobs:
       - name: Deploy New Containers
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            cd /home/ubuntu/Task_Test_Josimar_Backend
+            cd /home/ubuntu/Task_Test_Backend
             docker pull mysql:8.0 # Pull the mysql image
-            echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}" >> .env
+            echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ github.env.COMMIT_ID }}" >> .env
             echo "DB_CONNECTION=mysql" >> .env
             echo "DB_HOST=mysql" >> .env
             echo "DB_PORT=3306" >> .env
