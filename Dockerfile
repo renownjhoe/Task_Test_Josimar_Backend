@@ -57,22 +57,7 @@ COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 COPY --from=build /app /app
 
 # Create a custom PHP-FPM configuration
-RUN echo "\
-[global]\n\
-error_log = /proc/self/fd/2\n\
-\n\
-[www]\n\
-listen = 0.0.0.0:9000\n\
-listen.allowed_clients = any\n\
-user = www-data\n\
-group = www-data\n\
-pm = dynamic\n\
-pm.max_children = 5\n\
-pm.start_servers = 2\n\
-pm.min_spare_servers = 1\n\
-pm.max_spare_servers = 3\n\
-catch_workers_output = yes\n\
-" > /usr/local/etc/php-fpm.d/zz-docker.conf
+COPY zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Ensure directories exist with proper permissions
 RUN mkdir -p /app/storage /app/bootstrap/cache && \
