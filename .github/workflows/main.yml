@@ -91,7 +91,7 @@ jobs:
       - name: Clean up SSH private key
         run: |
           rm -f private_key.pem
-        if: always() 
+        if: always()
 
       # Step 10: Clean up known_hosts file
       - name: Clean up known_hosts file
