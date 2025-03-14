@@ -64,6 +64,9 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
+# Change ownership of the database directory
+RUN chown www-data:www-data /app/database
+
 # Create the database file
 RUN touch /app/database/database.sqlite && \
     chmod 775 /app/database/database.sqlite && \
