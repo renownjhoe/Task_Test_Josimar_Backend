@@ -29,22 +29,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
       MYSQL_DATABASE: 'blumeDB' # Replace with your database name
-    # ports:
-    #   - "3306:3306" # Expose only for local development, remove for production
+    ports:
+      - "3306:3306" # Expose only for local development, remove for production
     volumes:
       - mysql-data:/var/lib/mysql # Persist data in a named volume
-    networks:
-      - app-network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - '8081:80'
-    environment:
-      PMA_HOST: mysql # The name of your mysql service.
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
     networks:
       - app-network
 
