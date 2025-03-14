@@ -81,4 +81,4 @@ EXPOSE 9000
 
 RUN echo "Run command"
 
-CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php artisan db:seed && php-fpm -F"]
+CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
