@@ -99,6 +99,8 @@ jobs:
             echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
             echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
             docker compose up -d
+            docker exec -it php-app php artisan migrate --force
+            docker exec -it php-app php artisan db:seed --force
           EOF
 
       # Step 9: Clean up SSH private key
