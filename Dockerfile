@@ -68,7 +68,10 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 # RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
 #     sysctl -p
 
+RUN echo "Export Port"
 # Expose port and set CMD
 EXPOSE 9000
+
+RUN echo "Run command"
 
 CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
