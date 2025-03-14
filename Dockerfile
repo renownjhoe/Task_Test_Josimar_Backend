@@ -49,7 +49,7 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     mysql-client \
-    && docker-php-ext-install pdo_mysql
+    && docker-php-ext-install pdo_mysql mysqli # <--- Added mysqli here
 
 # Copy Composer from the build stage
 COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
@@ -69,7 +69,6 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-    
 # Change ownership of the database directory
 # RUN chown www-data:www-data /app/database
 
