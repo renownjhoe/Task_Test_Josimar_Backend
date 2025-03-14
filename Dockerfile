@@ -31,9 +31,6 @@ COPY . /app
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
-# Install PHP and Node.js dependencies
-RUN composer install && npm install && npm run dev
-
 # Clean up build dependencies to reduce image size
 RUN apk del .build-deps
 
@@ -67,10 +64,11 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Run application setup commands
-RUN php artisan key:generate && php artisan migrate && npm install && npm run dev
+# Increase the number of file watchers
+# RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
+#     sysctl -p
 
-# Expose port and start PHP-FPM
+# Expose port and set CMD
 EXPOSE 9000
 
-CMD ["php-fpm", "-F"]
+CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
