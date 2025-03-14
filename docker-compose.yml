@@ -8,6 +8,8 @@ services:
     container_name: php-app
     networks:
       - app-network
+    depends_on:
+      - mysql
 
   nginx:
     image: nginx:alpine
@@ -21,6 +23,22 @@ services:
     depends_on:
       - php-app
 
+  mysql:
+    image: mysql:8.0 # Or the version you prefer
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
+      MYSQL_DATABASE: 'blumeDB' # Replace with your database name
+    ports:
+      - "3306:3306" # Expose only for local development, remove for production
+    volumes:
+      - mysql-data:/var/lib/mysql # Persist data in a named volume
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mysql-data: # Define the named volume

@@ -44,7 +44,9 @@ RUN apk add --no-cache \
     libzip \
     icu \
     nodejs \
-    npm
+    npm \
+    mysql-client \
+    && docker-php-ext-install pdo_mysql
 
 # Copy Composer from the build stage
 COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
@@ -64,13 +66,14 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
+    
 # Change ownership of the database directory
-RUN chown www-data:www-data /app/database
+# RUN chown www-data:www-data /app/database
 
-# Create the database file
-RUN touch /app/database/database.sqlite && \
-    chmod 775 /app/database/database.sqlite && \
-    chown www-data:www-data /app/database/database.sqlite
+# # Create the database file
+# RUN touch /app/database/database.sqlite && \
+#     chmod 775 /app/database/database.sqlite && \
+#     chown www-data:www-data /app/database/database.sqlite
 
 RUN echo "Export Port"
 # Expose port and set CMD
@@ -78,4 +81,4 @@ EXPOSE 9000
 
 RUN echo "Run command"
 
-CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && chown www-data:www-data /app/database/database.sqlite && php artisan db:seed && php-fpm -F"]
+CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php artisan db:seed && php-fpm -F"]
