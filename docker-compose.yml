@@ -5,6 +5,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        MYSQL_DATABASE: '${MYSQL_DATABASE}'
+        MYSQL_USER: '${MYSQL_USER}'
+        MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+        IMAGE_NAME: '${IMAGE_NAME}'
     container_name: php-app
     networks:
       - app-network
