@@ -15,77 +15,86 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Step 2: Add server's public key to known_hosts
-    - name: Add server public key to known_hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
-        chmod 644 ~/.ssh/known_hosts
+      # Step 2: Add server's public key to known_hosts
+      - name: Add server public key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-    # Step 3: Log in to Docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      # Step 3: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    # Step 4: Set up SSH key for server connection
-    - name: Set up SSH key
-      run: |
-        echo "${{ secrets.EC2_KEY_PAIR_PEM }}" > private_key.pem
-        chmod 600 private_key.pem
+      # Step 4: Set up SSH key for server connection
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_KEY_PAIR_PEM }}" > private_key.pem
+          chmod 600 private_key.pem
 
-    # Step 5: Get short Git commit ID
-    - name: Get short Git commit ID
-      run: echo "COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      # Step 5: Get short Git commit ID
+      - name: Get short Git commit ID
+        run: echo "COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-    #Step 6: SSH into server and clean up old containers
-    - name: Clean up old Docker containers
-      run: |
-        ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          cd /home/ubuntu/Task_Test_Josimar_Backend
-          docker compose down
-          docker system prune -af
-        EOF
-        
-    # Step 7: Ensure the server code is up to date with GitHub
-    - name: Pull latest code from GitHub on the server
-      run: |
-        ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          cd /home/ubuntu/Task_Test_Josimar_Backend
-          sudo chown -R $USER:$USER .
-          git stash
-          git pull origin main
-        EOF
+      #Step 6: SSH into server and clean up old containers
+      - name: Clean up old Docker containers
+        run: |
+          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/Task_Test_Josimar_Backend
+            docker compose down
+            docker system prune -af
+          EOF
 
-    # Step 7: Build and Push New Docker Image
-    - name: Build and Push New Docker Image
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }} -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest
+      # Step 7: Ensure the server code is up to date with GitHub
+      - name: Pull latest code from GitHub on the server
+        run: |
+          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/Task_Test_Josimar_Backend
+            sudo chown -R $USER:$USER .
+            git stash
+            git pull origin main
+          EOF
 
-    # Step 8: SSH into server and deploy new containers
-    - name: Deploy New Containers
-      run: |
-        ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          cd /home/ubuntu/Task_Test_Josimar_Backend
-          echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}" >> .env
-          docker compose up -d
-        EOF
+      # Step 7: Build and Push New Docker Image
+      - name: Build and Push New Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }} -t ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest
 
-    # Step 9: Clean up SSH private key
-    - name: Clean up SSH private key
-      run: |
-        rm -f private_key.pem
-      if: always()
+      # Step 8: SSH into server and deploy new containers
+      - name: Deploy New Containers
+        run: |
+          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/Task_Test_Josimar_Backend
+            docker pull mysql:8.0 # Pull the mysql image
+            echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}" >> .env
+            echo "DB_CONNECTION=mysql" >> .env
+            echo "DB_HOST=mysql" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+            echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+            docker compose up -d
+            docker exec -it php-app php artisan migrate --force
+            docker exec -it php-app php artisan db:seed --force
+          EOF
 
-    # Step 10: Clean up known_hosts file
-    - name: Clean up known_hosts file
-      run: |
-        rm -f ~/.ssh/known_hosts
-      if: always()
+      # Step 9: Clean up SSH private key
+      - name: Clean up SSH private key
+        run: |
+          rm -f private_key.pem
+        if: always()
+
+      # Step 10: Clean up known_hosts file
+      - name: Clean up known_hosts file
+        run: |
+          rm -f ~/.ssh/known_hosts
+        if: always()
