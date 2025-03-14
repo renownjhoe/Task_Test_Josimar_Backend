@@ -49,7 +49,7 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     mysql-client \
-    && docker-php-ext-install pdo_mysql mysqli # <--- Added mysqli here
+    && docker-php-ext-install pdo_mysql mysqli # <--- mysqli added here
 
 # Copy Composer from the build stage
 COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
