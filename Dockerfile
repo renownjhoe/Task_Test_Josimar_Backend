@@ -64,6 +64,10 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
+
+# Change ownership of the database.sqlite file
+RUN chown www-data:www-data /app/database/database.sqlite
+
 # Increase the number of file watchers
 # RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
 #     sysctl -p
