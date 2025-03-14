@@ -24,13 +24,14 @@ services:
       - php-app
 
   mysql:
-    image: mysql:8.0 # Or the version you prefer
+    build:
+      context: ./mysql # Path to your custom MySQL Dockerfile
     container_name: mysql-db
     environment:
       MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
       MYSQL_DATABASE: 'blumeDB' # Replace with your database name
-    # ports:
-    #   - "3306:3306" # Expose only for local development, remove for production
+      MYSQL_USER: 'root' # add the mysql user
+      MYSQL_PASSWORD: '323@34lkssdafkkasdf' # add the mysql password
     volumes:
       - mysql-data:/var/lib/mysql # Persist data in a named volume
     networks:
