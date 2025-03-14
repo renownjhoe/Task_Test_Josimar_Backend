@@ -72,10 +72,6 @@ RUN touch /app/database/database.sqlite && \
     chmod 775 /app/database/database.sqlite && \
     chown www-data:www-data /app/database/database.sqlite
 
-# Increase the number of file watchers
-# RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf && \
-#     sysctl -p
-
 RUN echo "Export Port"
 # Expose port and set CMD
 EXPOSE 9000
