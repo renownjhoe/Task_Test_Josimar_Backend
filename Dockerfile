@@ -71,4 +71,4 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 # Expose port and set CMD
 EXPOSE 9000
 
-CMD ["sh", "-c", "composer install && npm install && npm run dev && php artisan key:generate && php artisan migrate && php artisan db:seed && php-fpm -F"]
+CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
