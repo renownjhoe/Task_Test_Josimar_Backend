@@ -23,17 +23,30 @@ services:
     depends_on:
       - php-app
 
+  # mysql:
+  #   build:
+  #     context: ./mysql # Path to your custom MySQL Dockerfile
+  #   container_name: mysql-db
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
+  #     MYSQL_DATABASE: 'blumeDB' # Replace with your database name
+  #     MYSQL_USER: 'root' # add the mysql user
+  #     MYSQL_PASSWORD: '323@34lkssdafkkasdf' # add the mysql password
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql # Persist data in a named volume
+  #   networks:
+  #     - app-network
+
   mysql:
-    build:
-      context: ./mysql # Path to your custom MySQL Dockerfile
+    image: mysql:8.0 # Or mysql:latest
     container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
-      MYSQL_DATABASE: 'blumeDB' # Replace with your database name
-      MYSQL_USER: 'root' # add the mysql user
-      MYSQL_PASSWORD: '323@34lkssdafkkasdf' # add the mysql password
+      MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf'
+      MYSQL_DATABASE: 'blumeDB'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: '323@34lkssdafkkasdf'
     volumes:
-      - mysql-data:/var/lib/mysql # Persist data in a named volume
+        - mysql-data:/var/lib/mysql
     networks:
       - app-network
 
