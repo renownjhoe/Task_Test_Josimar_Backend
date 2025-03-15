@@ -61,6 +61,13 @@ COPY --from=build /app /app
 
 # Copy .env file
 COPY .env.example /app/.env
+RUN mkdir -p /app/database
+
+# Create the database file
+RUN touch /app/database/database.sqlite
+
+# Change ownership of the database.sqlite file
+RUN chown www-data:www-data /app/database/database.sqlite
 
 # Ensure the directories exist before setting permissions
 RUN mkdir -p /app/storage /app/bootstrap/cache && \
@@ -69,12 +76,6 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 
 # Change ownership of the database directory
 RUN chown www-data:www-data /app/database
-
-# Create the database file
-RUN touch /app/database/database.sqlite
-
-# Change ownership of the database.sqlite file
-RUN chown www-data:www-data /app/database/database.sqlite
 
 RUN echo "Export Port"
 # Expose port and set CMD
