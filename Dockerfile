@@ -31,6 +31,9 @@ COPY . /app
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
+# Install Composer dependencies (including dev for testing)
+RUN composer install --no-interaction
+
 # Clean up build dependencies to reduce image size
 RUN apk del .build-deps
 
@@ -61,6 +64,7 @@ COPY --from=build /app /app
 
 # Copy .env file
 COPY .env.example /app/.env
+
 RUN mkdir -p /app/database
 
 # Create the database file
@@ -83,4 +87,4 @@ EXPOSE 9000
 
 RUN echo "Run command"
 
-CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
+CMD ["sh", "-c", "composer install --no-dev && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]

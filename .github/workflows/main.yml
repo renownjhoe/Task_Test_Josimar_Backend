@@ -85,12 +85,20 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:${{ env.COMMIT_ID }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/php-app:latest
 
-      # Step 8: SSH into server and deploy new containers
-      - name: Deploy New Containers
+      # Step 8: SSH into server and deploy new containers and run tests
+      - name: Deploy New Containers and Run Tests
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             cd /home/ubuntu/Task_Test_Josimar_Backend
             docker compose up -d --build
+            docker compose run php-app composer install --no-interaction
+            docker compose run php-app php artisan migrate --force
+            docker compose run php-app php artisan test
+            TEST_RESULT=$?
+            if [ $TEST_RESULT -ne 0 ]; then
+              echo "Tests failed. Deployment aborted."
+              exit 1
+            fi
           EOF
 
       # Step 9: Clean up SSH private key
