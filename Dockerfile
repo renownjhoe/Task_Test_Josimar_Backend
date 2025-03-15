@@ -28,10 +28,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN echo "Copy .env.example to .env"
 # Copy the .env.example to .env
 COPY .env.example .env
-RUN echo "End of Copy .env.example to .env"
 
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
