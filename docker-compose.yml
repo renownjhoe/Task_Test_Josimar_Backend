@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   php-app:
     build:
@@ -6,8 +8,6 @@ services:
     container_name: php-app
     networks:
       - app-network
-    depends_on:
-      - mysql
 
   nginx:
     image: nginx:alpine
@@ -21,25 +21,6 @@ services:
     depends_on:
       - php-app
 
-  mysql:
-    build:
-      args:
-        MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf'
-        MYSQL_USER_PASSWORD: '323@34lkssdafkkasdf'
-      context: .
-      dockerfile: ./mysql/Dockerfile
-    restart: unless-stopped
-    volumes:
-      - ./mysqldata:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_USER_PASSWORD=${MYSQL_USER_PASSWORD}
-
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  mysql-data:
