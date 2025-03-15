@@ -93,7 +93,9 @@ jobs:
             docker compose up -d --build
             docker compose run php-app composer install --no-interaction
             docker compose run php-app php artisan migrate --force
-            TEST_OUTPUT=$(docker compose run php-app php artisan test) # Capture test output
+            echo "Starting tests..."
+            TEST_OUTPUT=$(docker compose run php-app php artisan test)
+            echo "Tests completed."
             echo "$TEST_OUTPUT" # Display test output
             TEST_RESULT=$?
             if [ $TEST_RESULT -ne 0 ]; then
