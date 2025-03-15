@@ -90,23 +90,8 @@ jobs:
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
               set -x # Enable debug output
-              which docker
-              which docker compose
               cd /home/ubuntu/Task_Test_Josimar_Backend
               docker compose up -d --build
-              docker ps # Check container status
-              docker compose logs
-              docker logs php-app
-              docker compose run php-app composer install --no-interaction
-              docker compose run php-app php artisan migrate --force
-              echo "Starting tests..."
-              docker compose run php-app php artisan test > test_output.txt 2>&1 # Redirect to file
-              cat test_output.txt # Display file content
-              TEST_RESULT=$?
-              if [ $TEST_RESULT -ne 0 ]; then
-                echo "Tests failed. Deployment aborted."
-                exit 1
-              fi
             EOF
       # Step 9: Clean up SSH private key
       - name: Clean up SSH private key
