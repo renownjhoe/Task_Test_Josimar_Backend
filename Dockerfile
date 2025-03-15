@@ -33,16 +33,6 @@ RUN echo "Copy .env.example to .env"
 COPY .env.example .env
 RUN echo "End of Copy .env.example to .env"
 
-# Set environment variables
-ENV DB_CONNECTION=mysql
-ENV DB_HOST=mysql
-ENV DB_PORT=3306
-ENV DB_DATABASE=${MYSQL_DATABASE}
-ENV DB_USERNAME=${MYSQL_USER}
-ENV DB_PASSWORD=${MYSQL_PASSWORD}
-
-ENV IMAGE_NAME=${IMAGE_NAME}
-
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
