@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   php-app:
     build:
@@ -23,30 +21,15 @@ services:
     depends_on:
       - php-app
 
-  # mysql:
-  #   build:
-  #     context: ./mysql # Path to your custom MySQL Dockerfile
-  #   container_name: mysql-db
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf' # Replace with a strong password
-  #     MYSQL_DATABASE: 'blumeDB' # Replace with your database name
-  #     MYSQL_USER: 'root' # add the mysql user
-  #     MYSQL_PASSWORD: '323@34lkssdafkkasdf' # add the mysql password
-  #   volumes:
-  #     - mysql-data:/var/lib/mysql # Persist data in a named volume
-  #   networks:
-  #     - app-network
-
   mysql:
-    image: mysql:8.0 # Or mysql:latest
+    build:
+      context: ./mysql
     container_name: mysql-db
     environment:
       MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf'
       MYSQL_DATABASE: 'blumeDB'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: '323@34lkssdafkkasdf'
     volumes:
-        - mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     networks:
       - app-network
 
@@ -56,7 +39,7 @@ services:
     ports:
       - '8081:80'
     environment:
-      PMA_HOST: mysql # The name of your mysql service.
+      PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
     networks:
@@ -67,4 +50,4 @@ networks:
     driver: bridge
 
 volumes:
-  mysql-data: # Define the named volume
+  mysql-data:

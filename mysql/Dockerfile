@@ -1,7 +1,7 @@
 FROM mysql:8.0
 
-ENV MYSQL_USER=appuser
-ENV MYSQL_PASSWORD=apppassword
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=323@34lkssdafkkasdf
 ENV MYSQL_DATABASE=blumeDB
 
 COPY entrypoint.sh /docker-entrypoint.sh

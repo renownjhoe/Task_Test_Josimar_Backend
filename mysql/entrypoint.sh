@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# Wait for MySQL to start
-until mysql -u root -e 'SELECT 1'; do
-  >&2 echo "MySQL is unavailable - sleeping"
-  sleep 1
-done
-
 >&2 echo "MySQL is up - executing command"
 
 # Create the user and grant privileges
