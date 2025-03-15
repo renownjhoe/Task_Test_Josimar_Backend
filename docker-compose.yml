@@ -23,27 +23,19 @@ services:
 
   mysql:
     build:
-      context: ./mysql
-    container_name: mysql-db
-    environment:
-      MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf'
-      MYSQL_DATABASE: 'blumeDB'
+      args:
+        MYSQL_ROOT_PASSWORD: '323@34lkssdafkkasdf'
+        MYSQL_USER_PASSWORD: '323@34lkssdafkkasdf'
+      context: .
+      dockerfile: ./mysql/Dockerfile
+    restart: unless-stopped
     volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - app-network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
+      - ./mysqldata:/var/lib/mysql
     ports:
-      - '8081:80'
+      - "3306:3306"
     environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    networks:
-      - app-network
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER_PASSWORD=${MYSQL_USER_PASSWORD}
 
 networks:
   app-network:
