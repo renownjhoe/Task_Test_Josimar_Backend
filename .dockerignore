@@ -1,4 +1,3 @@
 vendor/
 noode_modules/
 .env
-composer.lock
