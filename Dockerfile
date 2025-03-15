@@ -28,12 +28,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN echo "Copy .env.example to .env"
-# Copy the .env.example to .env
-COPY .env.example .env
-
-RUN echo "End of Copy .env.example to .env"
-
 # Install Node.js globally in the build stage (optional)
 RUN npm install -g npm
 
@@ -50,9 +44,7 @@ RUN apk add --no-cache \
     libzip \
     icu \
     nodejs \
-    npm \
-    mysql-client \
-    && docker-php-ext-install pdo_mysql mysqli # <--- mysqli added here
+    npm
 
 # Copy Composer from the build stage
 COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
@@ -76,9 +68,10 @@ RUN mkdir -p /app/storage /app/bootstrap/cache && \
 RUN chown www-data:www-data /app/database
 
 # Create the database file
-RUN touch /app/database/database.sqlite && \
-    chmod 775 /app/database/database.sqlite && \
-    chown www-data:www-data /app/database/database.sqlite
+RUN touch /app/database/database.sqlite
+
+# Change ownership of the database.sqlite file
+RUN chown www-data:www-data /app/database/database.sqlite
 
 RUN echo "Export Port"
 # Expose port and set CMD
