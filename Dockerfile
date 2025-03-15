@@ -18,8 +18,6 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
-RUN composer install --no-dev --optimize-autoloader
-
 COPY . /app
 
 # Copy PHP runtime extensions and configuration from the build stage
@@ -46,4 +44,4 @@ EXPOSE 9000
 
 RUN echo "Run command"
 
-CMD ["sh", "-c", "npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
+CMD ["sh", "-c", "composer install && npm install && npm run build && php artisan key:generate && php artisan migrate --force && php-fpm -F"]
