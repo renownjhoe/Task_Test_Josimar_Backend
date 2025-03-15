@@ -59,6 +59,8 @@ COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 # Copy application files from the build stage
 COPY --from=build /app /app
 
+COPY .env.example .env
+
 # Ensure the directories exist before setting permissions
 RUN mkdir -p /app/storage /app/bootstrap/cache && \
     chmod -R 775 /app/storage /app/bootstrap/cache && \
