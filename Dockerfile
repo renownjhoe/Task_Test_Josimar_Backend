@@ -52,6 +52,8 @@ COPY --from=build /usr/local/bin/composer /usr/local/bin/composer
 # Set working directory
 WORKDIR /app
 
+COPY . /app
+
 # Copy PHP runtime extensions and configuration from the build stage
 COPY --from=build /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
