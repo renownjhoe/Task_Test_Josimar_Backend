@@ -131,9 +131,12 @@ jobs:
             cd /home/ubuntu/Task_Test_Josimar_Backend
             docker compose run php-app composer install --no-interaction
             docker compose run php-app php artisan migrate --force
-            echo "Starting tests..."
-            TEST_OUTPUT=$(docker compose run php-app php artisan test 2>&1)
-            echo "$TEST_OUTPUT"
+            echo "Running tests..."
+            docker compose run php-app php artisan test > test_output.txt 2>&1
+            echo "Tests completed."
+            ls -l test_output.txt
+            echo "Displaying test output:"
+            cat test_output.txt
             TEST_RESULT=$?
             if [ $TEST_RESULT -ne 0 ]; then
               echo "Tests failed. Deployment aborted."
