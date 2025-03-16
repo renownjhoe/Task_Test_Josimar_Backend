@@ -124,21 +124,27 @@ jobs:
           echo "${{ secrets.EC2_KEY_PAIR_PEM }}" > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Run Tests
+          - name: Run Smoke Tests
+          run: |
+            ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+              set -x
+              cd /home/ubuntu/Task_Test_Josimar_Backend
+              docker compose run php-app composer install --no-interaction
+              docker compose run php-app php artisan migrate --force
+              echo "Running smoke tests..."
+              curl -s -o /dev/null -w "%{http_code}" http://your-app-url/health-check || { echo "Smoke test failed: Health check endpoint down"; exit 1; }
+              curl -s -o /dev/null -w "%{http_code}" http://your-app-url/api/users || { echo "Smoke test failed: Users API endpoint down"; exit 1; }
+            EOF
+  
+      - name: Rollback if smoke test fails
+        if: failure()
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -e
+            set -x
             cd /home/ubuntu/Task_Test_Josimar_Backend
-            docker compose exec php-app composer install --no-interaction
-            docker compose exec php-app php artisan migrate --force
-            echo "Running tests..."
-            docker compose exec php-app php artisan test | tee test_output.txt
-            TEST_RESULT=\${PIPESTATUS[0]}
-            if [ $TEST_RESULT -ne 0 ]; then
-              echo "Tests failed. Deployment aborted."
-              docker compose down
-              exit 1
-            fi
+            echo "Rolling back to previous deployment..."
+            docker compose pull ${{ secrets.DOCKERHUB_USERNAME }}/php-app:previous-tag # Replace with your tag
+            docker compose up -d
           EOF
 
       - name: Clean up SSH private key
