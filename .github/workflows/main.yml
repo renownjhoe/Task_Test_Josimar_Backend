@@ -132,8 +132,8 @@ jobs:
             docker compose run php-app composer install --no-interaction
             docker compose run php-app php artisan migrate --force
             echo "Running smoke tests..."
-            curl -s -o /dev/null -w "%{http_code}" http://your-app-url/health-check || { echo "Smoke test failed: Health check endpoint down"; exit 1; }
-            curl -s -o /dev/null -w "%{http_code}" http://your-app-url/api/users || { echo "Smoke test failed: Users API endpoint down"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/health-check || { echo "Smoke test failed: Health check endpoint down"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/api/users || { echo "Smoke test failed: Users API endpoint down"; exit 1; }
             # Remove any stray hyphens or empty lines
           EOF
   
