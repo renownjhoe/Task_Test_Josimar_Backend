@@ -183,7 +183,7 @@ jobs:
             docker ps
             echo "Checking if Prometheus is running..."
             sleep 10 # Add a delay
-            curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}:9090 || { echo "Prometheus is not running"; exit 1; }
           EOF
 
       - name: Check Grafana Service
@@ -193,7 +193,7 @@ jobs:
             cd /home/ubuntu/Task_Test_Josimar_Backend
             echo "Checking if Grafana is running..."
             sleep 10 # Add a delay
-            curl -s -o /dev/null -w "%{http_code}" http://grafana:3000 || { echo "Grafana is not running"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}:3000 || { echo "Grafana is not running"; exit 1; }
           EOF
       - name: Check prometheus and grafana from inside php-app.
         run: |
@@ -201,8 +201,8 @@ jobs:
             set -x
             cd /home/ubuntu/Task_Test_Josimar_Backend
             echo "Checking prometheus from php-app"
-            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running from php-app"; exit 1; }
+            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}:9090 || { echo "Prometheus is not running from php-app"; exit 1; }
             echo "Checking grafana from php-app"
-            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://grafana:3000 || { echo "Grafana is not running from php-app"; exit 1; }
+            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}:3000 || { echo "Grafana is not running from php-app"; exit 1; }
 
           EOF
