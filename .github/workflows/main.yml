@@ -171,13 +171,13 @@ jobs:
         run: |
           echo "${{ secrets.EC2_KEY_PAIR_PEM }}" > private_key.pem
           chmod 600 private_key.pem
-          
+
       - name: Check Prometheus Service
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             set -x
             echo "Checking if Prometheus is running..."
-            curl -s -o /dev/null -w "%{http_code}" http://@${{ secrets.EC2_PUBLIC_IP }}:9090 || { echo "Prometheus is not running"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running"; exit 1; }
           EOF
 
       - name: Check Grafana Service
@@ -185,5 +185,5 @@ jobs:
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             set -x
             echo "Checking if Grafana is running..."
-            curl -s -o /dev/null -w "%{http_code}" http://@${{ secrets.EC2_PUBLIC_IP }}:3000 || { echo "Grafana is not running"; exit 1; }
+            curl -s -o /dev/null -w "%{http_code}" http://grafana:3000 || { echo "Grafana is not running"; exit 1; }
           EOF
