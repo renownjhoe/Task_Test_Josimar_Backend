@@ -127,16 +127,12 @@ jobs:
       - name: Run Tests
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -x
+            set -e
             cd /home/ubuntu/Task_Test_Josimar_Backend
-            docker compose run php-app composer install --no-interaction
-            docker compose run php-app php artisan migrate --force
+            docker compose exec php-app composer install --no-interaction
+            docker compose exec php-app php artisan migrate --force
             echo "Running tests..."
-            docker compose run php-app php artisan test | tee test_output.txt
-            echo "Tests completed."
-            ls -l test_output.txt
-            echo "Displaying test output:"
-            cat test_output.txt
+            docker compose exec php-app php artisan test | tee test_output.txt
             TEST_RESULT=\${PIPESTATUS[0]}
             if [ $TEST_RESULT -ne 0 ]; then
               echo "Tests failed. Deployment aborted."
@@ -144,7 +140,6 @@ jobs:
               exit 1
             fi
           EOF
-
 
       - name: Clean up SSH private key
         run: |
