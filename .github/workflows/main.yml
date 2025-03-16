@@ -126,16 +126,15 @@ jobs:
 
       - name: Run Smoke Tests
         run: |
-          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -x
-            cd /home/ubuntu/Task_Test_Josimar_Backend
-            docker compose run php-app composer install --no-interaction
-            docker compose run php-app php artisan migrate --force
-            echo "Running smoke tests..."
-            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/health-check || { echo "Smoke test failed: Health check endpoint down"; exit 1; }
-            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/api/users || { echo "Smoke test failed: Users API endpoint down"; exit 1; }
-            # Remove any stray hyphens or empty lines
-          EOF
+            ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+                set -x
+                cd /home/ubuntu/Task_Test_Josimar_Backend || { echo "cd failed"; exit 1; }
+                docker compose run php-app composer install --no-interaction --no-progress || { echo "composer install failed"; exit 1; }
+                docker compose run php-app php artisan migrate --force || { echo "migrate failed"; exit 1; }
+                echo "Running smoke tests..."
+                curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/api/health || { echo "Smoke test failed: Health check endpoint down"; exit 1; }
+                curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}/api/users || { echo "Smoke test failed: Users API endpoint down"; exit 1; }
+            EOF
   
       - name: Rollback if smoke test fails
         if: failure()

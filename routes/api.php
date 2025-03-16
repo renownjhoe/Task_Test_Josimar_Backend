@@ -26,3 +26,6 @@ Route::group(['middleware' => ['jwt.auth']], function () {
         
     });
 });
+
+Route::get('/users', [AuthController::class, 'index']);
+Route::get('/health', [HealthCheckController::class, 'index']);

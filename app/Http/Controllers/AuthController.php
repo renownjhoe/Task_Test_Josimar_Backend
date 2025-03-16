@@ -15,6 +15,17 @@ use Tymon\JWTAuth\JWT;
 
 class AuthController extends Controller
 {
+    public function index()
+    {
+        $users = User::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successful',
+            'users'    => $users, // optionally return user data
+        ], 201);
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
