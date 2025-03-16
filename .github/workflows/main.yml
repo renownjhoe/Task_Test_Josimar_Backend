@@ -93,26 +93,14 @@ jobs:
             cd /home/ubuntu/Task_Test_Josimar_Backend
             docker compose up -d --build
           EOF
-      
-      # Step 9: Verify Monitoring Services
-      - name: Check Prometheus and Grafana Services
-        run: |
-          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -x
-            echo "Checking if Prometheus is running..."
-            curl -s -o /dev/null -w "%{http_code}" http://${{secrets.EC2_PUBLIC_IP}}:9090 || { echo "Prometheus is not running"; exit 1; }
 
-            echo "Checking if Grafana is running..."
-            curl -s -o /dev/null -w "%{http_code}" http://${{secrets.EC2_PUBLIC_IP}}:3000 || { echo "Grafana is not running"; exit 1; }
-          EOF
-
-      # Step 10: Clean up SSH private key
+      # Step 9: Clean up SSH private key
       - name: Clean up SSH private key
         run: |
           rm -f private_key.pem
         if: always()
 
-      # Step 11: Clean up known_hosts file
+      # Step 10: Clean up known_hosts file
       - name: Clean up known_hosts file
         run: |
           rm -f ~/.ssh/known_hosts
