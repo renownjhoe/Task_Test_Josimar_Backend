@@ -157,7 +157,7 @@ jobs:
   monitoring_check:
     name: Verify Monitoring Services
     runs-on: ubuntu-latest
-    needs: test # Ensures monitoring runs only after test succeeds
+    needs: test
     steps:
       # Step 1: Add server's public key to known_hosts
       - name: Add server public key to known_hosts
@@ -176,7 +176,13 @@ jobs:
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             set -x
+            cd /home/ubuntu/Task_Test_Josimar_Backend
+            echo "Checking Docker network..."
+            docker network inspect app-network
+            echo "Checking container status..."
+            docker ps
             echo "Checking if Prometheus is running..."
+            sleep 10 # Add a delay
             curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running"; exit 1; }
           EOF
 
@@ -184,6 +190,19 @@ jobs:
         run: |
           ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             set -x
+            cd /home/ubuntu/Task_Test_Josimar_Backend
             echo "Checking if Grafana is running..."
+            sleep 10 # Add a delay
             curl -s -o /dev/null -w "%{http_code}" http://grafana:3000 || { echo "Grafana is not running"; exit 1; }
+          EOF
+      - name: Check prometheus and grafana from inside php-app.
+        run: |
+          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            set -x
+            cd /home/ubuntu/Task_Test_Josimar_Backend
+            echo "Checking prometheus from php-app"
+            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running from php-app"; exit 1; }
+            echo "Checking grafana from php-app"
+            docker compose run php-app curl -s -o /dev/null -w "%{http_code}" http://grafana:3000 || { echo "Grafana is not running from php-app"; exit 1; }
+
           EOF
