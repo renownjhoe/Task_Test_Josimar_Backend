@@ -115,7 +115,7 @@ jobs:
       - name: Add server public key to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H -F ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       # Step 2: Set up SSH key for server connection
