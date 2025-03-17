@@ -178,17 +178,17 @@ jobs:
 
       - name: Check Prometheus Service
         run: |
-          ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -x
-            cd /home/ubuntu/Task_Test_Josimar_Backend
-            echo "Checking Docker network..."
-            docker network inspect app-network
-            echo "Checking container status..."
-            docker ps
-            echo "Checking if Prometheus is running..."
-            sleep 10 # Add a delay
-            curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }}:9090 || { echo "Prometheus is not running"; exit 1; }
-          EOF
+            ssh -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+              set -x
+              cd /home/ubuntu/Task_Test_Josimar_Backend
+              echo "Checking Docker network..."
+              docker network ls
+              docker network inspect app-network
+              docker ps
+              echo "Checking if Prometheus is running..."
+              sleep 30 # Increased sleep time
+              curl -s -o /dev/null -w "%{http_code}" http://prometheus:9090 || { echo "Prometheus is not running"; exit 1; }
+            EOF
 
       - name: Check Grafana Service
         run: |
