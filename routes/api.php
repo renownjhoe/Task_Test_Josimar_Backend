@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrtController;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Request;
 
 // Public routes
